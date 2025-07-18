@@ -4,7 +4,7 @@ db.run(`
     CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
+    email TEXT NOT NULL,
     password TEXT UNIQUE NOT NULL,
     avatar TEXT
     )
@@ -23,7 +23,7 @@ db.run(`
                 if(err) {
                     rej(err)
                 } else {
-                    res({message: 'User created'})
+                    res({id: this.lastID, ...newUser})
                 }
               }
             );

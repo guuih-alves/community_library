@@ -4,7 +4,7 @@ db.run(`
     CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
     password TEXT UNIQUE NOT NULL,
     avatar TEXT
     )
@@ -30,6 +30,22 @@ db.run(`
         });
     }
 
+    function findUserByEmailRepository(email){
+        return new Promise((res, rej) => {
+            db.get(`
+                    SELECT id, username, email, avatar
+                     FROM users
+                     WHERE email = ?
+                `, [email], (err, row) => {
+                    if(err){
+                        rej(err);
+                    } else {
+                        res(row);
+                    }
+                })
+        })
+    }
+
     export default {
-        createUserRepository
+        createUserRepository, findUserByEmailRepository
     }

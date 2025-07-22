@@ -1,3 +1,4 @@
+import { email } from 'zod';
 import db from '../config/database.js'
 
 db.run(`
@@ -46,6 +47,88 @@ db.run(`
         })
     }
 
+    function findUserByIdRepository(id){
+        return new Promise((res, rej) => {
+            db.get(`
+                    SELECT id, username, email, avatar
+                     FROM users
+                     WHERE id = ?
+                `, [id], 
+                (err, row) => {
+                    if(err){
+                        rej(err);
+                    } else {
+                        res(row);
+                    }
+                })
+        })
+    }
+
+    function findAllUserRepository(){
+        return new Promise((res, rej) =>{
+            db.all(`
+                SELECT id, username, email, avatar FROM users         
+                `, [],
+                 (err, rows) => {
+                    if(err){
+                        rej(err)
+                    } else{
+                        res(rows)
+                    }
+                }  )
+        })
+    }
+
+    function updateUserRepository(id, user){
+        return new Promise((res, rej) => {
+          const  {username, email, password, avatar} = user
+          const fields = ['username', 'email','password','avatar']
+
+          let query = 'UPDATE users SET'
+          const values = []
+
+          fields.forEach((field) => {
+            if(user[field] !== undefined) {
+                query += ` ${field} = ?,`
+                values.push(user[field])
+            }
+          })
+
+          query = query.slice(0, -1)
+          query += 'WHERE id = ?'
+          values.push(id)
+
+          db.run(query, values, (err) => {
+            if(err){
+                rej(err)
+            } else{
+                res({...user, id});
+
+            }
+          })
+        })
+    }
+
+    async function deleteUserRepository(id) {
+        return new Promise((res, rej) => {
+            db.run(`
+                    DELETE FROM users
+                    WHERE id = ? 
+                `, [id], (err) => {
+                    if(err) {
+                        rej(err)
+                    } else {
+                        res({ message: 'User deleted', id})
+                    }
+                })
+        })
+    }
+
     export default {
-        createUserRepository, findUserByEmailRepository
+        createUserRepository, 
+        findUserByEmailRepository,
+         findUserByIdRepository,
+         findAllUserRepository,
+         updateUserRepository,
+         deleteUserRepository
     }

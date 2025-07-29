@@ -1,4 +1,5 @@
 import userServices from "../service/user.services.js";
+import {loginService} from '../service/auth.service.js'
 
 //No controller testa onde nao ha erro na aplicação
 
@@ -6,8 +7,19 @@ async function createuserController(req, res) {
     const newUser = req.body;
 
     try {
-        const user = await userServices.createUserService(newUser);
-        res.status(201).send({user})
+        const token = await userServices.createUserService(newUser);
+        res.status(201).send({token})
+    } catch (e){
+        return res.status(400).send(e.message);
+    }
+}
+
+async function loginuserController(req, res) {
+    const { email, password} = req.body;
+
+    try {
+        const token = await loginService(email, password);
+        res.status(201).send({token})
     } catch (e){
         return res.status(400).send(e.message);
     }
@@ -61,5 +73,6 @@ export default{
     findAllUserController,
     findUserByYdController,
     updateUserController,
-    deleteUserController
+    deleteUserController,
+    loginuserController
 }
